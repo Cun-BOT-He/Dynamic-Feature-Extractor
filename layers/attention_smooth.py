@@ -6,7 +6,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class Attnsmooth(nn.Module):
-    def __init__(self, input_size : int, hidden1 : int, hidden2 : int, hidden3 : int, device ：str = 'cpu'):
+    def __init__(self, input_size : int, hidden1 : int, hidden2 : int, hidden3 : int, device = 'cpu'):
         """
         Args:
         input_size : 输入向量维度
@@ -20,7 +20,7 @@ class Attnsmooth(nn.Module):
         self.hidden1 = nn.Linear(input_size, hidden1)
         self.hidden2 = nn.Linear(hidden1, hidden2)
         self.hidden3 = nn.Linear(hidden2, hidden3)
-        self.uw = torch.Parameter((hidden3), dtype = torch.float, device=device)
+        self.uw = nn.Parameter(torch.empty([hidden3], dtype = torch.float, device=device))
         
     def forward(self, input_seq):
         """
@@ -39,6 +39,6 @@ class Attnsmooth(nn.Module):
             attenuation_values.append(attenuation_row)
         attenuation = torch.stack(attenuation_values, 0)
         attenuation = F.softmax(attenuation, 0)
-        output = torch.sum(torch.mul(input_seq, attenuation), 0)
+        output = torch.sum(torch.mul(input_seq, attenuation.unsqueeze(2)), 0)
 
         return output, attenuation
