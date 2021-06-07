@@ -36,8 +36,17 @@ class RNDFE_reg_cfg(models.RNDFEConfig):
             end_seg = 20000
         )
         # -------------------Attention smooth config----------------- #
-        self.need_attn_smooth = False
+        self.need_attn_smooth = True
         # ------------------------Train config----------------------- #
         self.dfe_task = "regression"
         self.lr = 4e-4
         self.train_batch_size = 20
+        self.train_max_epoch = 20
+        self.train_print_every = 2
+        self.train_plot_every = 1
+        # ------------------------Test config------------------------ #
+        self.save_path = "DFE_reg_demo_ATTN.pt"
+        self.test_batch_size = 20
+        self.ds_max_epoch = 50
+        self.ds_print_every = 2
+        self.ds_plot_every = 1
