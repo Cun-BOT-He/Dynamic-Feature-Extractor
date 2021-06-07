@@ -26,5 +26,6 @@ class EncoderRNN(nn.Module):
             hidden = self.initHidden(input_seq.shape[1], input_seq.device)
         output, hidden = self.gru(input_seq, hidden)
         return output, hidden
+    
     def initHidden(self, batch_size, device):
         return torch.zeros((1, batch_size, self.hidden_size), device=device)
