@@ -48,4 +48,7 @@ class RNDFE_cls_cfg(models.RNDFEConfig):
         # ------------------------Train config----------------------- #
         self.dfe_task = "classification"
         self.lr = 4e-4
-        self.train_batch_size = 20		
+        self.train_batch_size = 20
+        # ------------------------Test config------------------------ #
+        self.save_path = "RNDFE_cls_demo_ATTN.pt"
+        self.test_batch_size = 20
