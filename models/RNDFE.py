@@ -52,9 +52,12 @@ class RNDFE(nn.Module):
             if self.cfg.need_attn_smooth:
                 dynamic_feature = encoder_hidden
                 _, attenuation = self.attn_smooth(encoder_output)
-                smooth_value = 1 / (torch.exp(torch.max(attenuation) - torch.min(attenuation)))
-                dyna_mean = torch.mean(dynamic_feature)
-                dynamic_feature = smooth_value * dynamic_feature + (1 - smooth_value) * dyna_mean
+                attenuation_min, _ = torch.min(attenuation, dim=0, keepdim = True)
+                attenuation_max, _ = torch.max(attenuation, dim=0, keepdim = True)
+                smooth_value = torch.exp(attenuation_min - attenuation_max)
+                dyna_mean = torch.mean(dynamic_feature, dim=2, keepdim=True)
+                dynamic_feature = torch.mul(smooth_value.unsqueeze(2), dynamic_feature) + \
+                torch.mul((torch.ones(size=smooth_value.shape, device=encoder_hidden.device) - smooth_value).unsqueeze(2), dyna_mean)
                 return dynamic_feature, attenuation
             else:
                 return encoder_hidden
@@ -101,5 +104,12 @@ class RNDFEConfig:
         self.dfe_task = "regression"
         self.lr = 1e-2
         self.train_batch_size = 20
+        self.train_max_epoch = 20
+        self.train_print_every = 1
+        self.train_plot_every = 1
 		# ------------------------Test config----------------------- #
+        self.save_path = "RNDFE_demo.pt"
         self.test_batch_size = 20
+        self.ds_max_epoch = 10
+        self.ds_print_every = 2
+        self.ds_plot_every = 1
