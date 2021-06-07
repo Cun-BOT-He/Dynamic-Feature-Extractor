@@ -26,10 +26,6 @@ def timeSince(since, percent):
     return '%s (- %s)' % (asMinutes(s), asMinutes(rs))
 
 def main():
-
-    print_every_dfe = 2
-    plot_every_dfe = 1
-    epoch_dfe = 20
     cfg = config.RNDFE_reg_cfg()
     
     torch.manual_seed(0)
@@ -58,7 +54,7 @@ def main():
     print_valid_loss_total = 0
     plot_loss_total = 0  # Reset every plot_every
     plot_valid_loss_total = 0
-    for iter in range(1, epoch_dfe + 1):
+    for iter in range(1, cfg.train_max_epoch + 1):
         train_loss_total = 0
         for trainData, trainLabel in train_loader:
             loss = DFE(trainData.float().to(dev), trainData.float().to(dev), trainLabel.float().to(dev))
@@ -76,29 +72,24 @@ def main():
         DFE_scheduler.step(valid_loss_total / len(BF_valid))
         print_valid_loss_total += valid_loss_total / len(BF_valid)
         plot_valid_loss_total += valid_loss_total / len(BF_valid)
-        if iter % print_every_dfe == 0:
-            print_loss_avg = print_loss_total / print_every_dfe
-            print_valid_loss_avg = print_valid_loss_total / print_every_dfe
+        if iter % cfg.train_print_every == 0:
+            print_loss_avg = print_loss_total / cfg.train_print_every
+            print_valid_loss_avg = print_valid_loss_total / cfg.train_print_every
             print_loss_total = 0
             print_valid_loss_total = 0
-            print('%s (%d %d%%) train loss: %.4f   valid loss: %.4f' % (timeSince(start, iter / epoch_dfe),
-                                         iter, iter / epoch_dfe * 100, print_loss_avg, print_valid_loss_avg))
+            print('%s (%d %d%%) train loss: %.4f   valid loss: %.4f' % (timeSince(start, iter / cfg.train_max_epoch),
+                                         iter, iter / cfg.train_max_epoch * 100, print_loss_avg, print_valid_loss_avg))
     
-        if iter % plot_every_dfe == 0:
-            plot_loss_avg = plot_loss_total / plot_every_dfe
-            plot_valid_loss_avg = plot_valid_loss_total / plot_every_dfe
+        if iter % cfg.train_plot_every == 0:
+            plot_loss_avg = plot_loss_total / cfg.train_plot_every
+            plot_valid_loss_avg = plot_valid_loss_total / cfg.train_plot_every
             plot_losses[0].append(plot_loss_avg)
             plot_losses[1].append(plot_valid_loss_avg)
             plot_loss_total = 0
             plot_valid_loss_total = 0
             
-        import matplotlib
-        import matplotlib.pyplot as plt
-        # matplotlib.use('Agg')
-        
-        plt.figure()
-        for single_axis in plot_losses:
-            plt.plot(single_axis)
+    PATH = "DFE_reg_demo_ATTN.pt"
+    torch.save(DFE.state_dict(), PATH)
     
 if __name__ == "__main__":
     main()
